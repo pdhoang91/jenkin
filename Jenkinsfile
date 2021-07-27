@@ -3,7 +3,7 @@ pipeline {
 	stages {
 		stage('Clone') {
 			steps {
-				git branch: 'main', url: 'https://github.com/pdhoang91/jenkin.git'
+				git branch: 'master', url: 'https://github.com/pdhoang91/jenkin.git'
 			}
 		}
 		// stage('Build Java App') {

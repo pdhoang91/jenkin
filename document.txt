@@ -1,0 +1,319 @@
+pdhoang91study
+aws
+Bài 5: Tạo SSH KEY trên AWS EC2 Linux
+
+Step1: Tạo user
+https://stackoverflow.com/questions/8339912/allowing-users-to-ssh-to-an-ec2-ubuntu-instance
+/etc/ssh/sshd_config and set PasswordAuthentication to yes.
+service sshd restart
+sudo /etc/init.d/sshd reload.
+service sshd restart
+Step2: Tạo Public key & Private key
+$ ssh-keygen -t rsa
+$ cd /home/yuki/.ssh
+$ mv id_rsa.pub authorized_keys
+$ chmod 600 authorized_keys
+Step3: Đăng nhập thử
+Step4: visudo
+
+
+Bài 4: Tạo user/group và phân quyền file và folder trên AWS EC2 Linux
+
+
+Lab document
+1.Thao tác với user
+- Tạo user
+useradd [tên user cần tạo]
+ví dụ
+useradd bao
+- Đặt mật khẩu cho user
+passwd  [tên user cần tạo]
+ví dụ: passwd bao
+- Xóa user
+userdel　[tên user cần tạo]
+ví dụ: userdel　bao
+2. Thao tác với nhóm
+- Tạo nhóm
+groupadd ketoan
+
+- Thêm user vào group
+usermod a -G  groupname username
+usermod -a -G ketoan bao
+
+- Kiểm tra xem user đã nằm trong group hay chưa
+id bao
+
+3. File and folder permission
+- Kiểm tra permisson hiện tại
+ls -la
+
+d rwx rwx ---  3 root     ketoan    15 Mar 16 07:05 data-ketoan
+-rw-r--r--  1 root     root       4 Mar 16 07:43 hellotxt
+
+- Thứ tự phân quyền user/group/other
+d: là thư mục
+r = read permission
+w = write permission
+x = execute permission
+- = no permission
+https://www.guru99.com/file-permissio...
+
+- Set permission cho file and folder
+
+Bản phân quyền
+No.   Permission Type   Symbol
+0  No Permission   ---
+1  Execute     --x
+2  Write     -w-
+3  Execute + Write   -wx
+4  Read     r--
+5  Read + Execute   r-x
+6  Read + Write          rw-
+7  Read + Write +Execute rwx
+
+Lệnh set quyền cho file và folder
+chmod [quyền] [tên file hoặc thư mục]
+ví dụ: chmod -Rf 777 ketoan
+
+- Lệnh gán quyền cho user và group
+chown [tên user]: [tên nhòm] [tên file hoặc thư mục]
+ví dụ: chown -Rf bao:bao ketoan
+Bài 25: Docker 1 / DevOps Docker là gì? cài docker và docker-compose trên EC2/AWS và Windows
+
+
+Cài docker và docker-compose trên EC2/AWS
+Thực thi với quyền root: (sudo su -)
+- Cai docker
+sudo yum update -y
+sudo yum install -y docker
+sudo service docker start
+service docker status
+docker --version
+sudo usermod -a -G docker ec2-user
+- Cài docker-compose
+
+sudo curl -L https://github.com/docker/compose/releases/download/1.24.1/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+docker-compose --help
+Các lệnh với image
+- Tìm image để cài đặt: docker search centos
+- List các image đang có: docker image ls
+- Xóa image: sudo docker rmi [Image ID]
+Chú ý: Các image mà có container đang chạy thì sẽ không xóa được mà phải xóa container liên quan tới nó trước
+- Pull image về: docker pull centos:7
+Làm việc với container
+- Chạy 1 container từ image
+ docker run --privileged -d -p 80:80 [Image Name] /sbin/init
+docker run --privileged -d -p 8080:80 centos:7 /sbin/init
+- List ra cac container ma minh dang co: docker ps
+- Vào container để chạy lệnh: docker exec -it [Container ID] /bin/bash 
+- Cài đặt apache
+yum -y install httpd
+systemctl start httpd
+systemctl status httpd
+systemctl enable httpd
+echo "<html><body>Hello Tin Hoc That La Don Gian</body></html>"  > /var/www/html/index.html
+
+echo “test"  > /var/www/html/script.js
+echo “test"  > /var/www/html/style.css
+
+- Thoát ra khỏi container
+exit
+- Tạo image để triển khai cho máy khác
+docker commit -m "Comment" -a "Tác giả"  [Container ID] [Image Name]
+example: docker commit -m "Centos Project01 Study docker" -a "Pham Dinh Hoang" c9368e9fb298 test_create_images/project01:v1
+
+- Đăng nhập vào docker/hub: docker login
+- Đưa image lên docker hup để mọi người cùng sử dụng
+//docker tag centos:7 pdhoang91/study_docker:v1 
+//docker push  pdhoang91/study_docker:v1
+docker push [Tên image]
+docker push tinhocthatladongian/project01:v1
+
+docker tag test_create_images/project01:v1 pdhoang91/study_docker:v1
+docker push  pdhoang91/study_docker: v1
+
+docker tag test_create_images/project01:v2 pdhoang91/study_docker:v2
+docker push  pdhoang91/study_docker:v2
+
+docker tag pdhoang91/study_docker:v2 pdhoang91/study_docker:v3
+docker push  pdhoang91/study_docker:v3
+
+docker tag docker-spring-boot:latest pdhoang91/study_docker: latest
+       docker push  pdhoang91/study_docker: latest
+
+
+
+
+
+Pull docker ve de su dung
+       docker pull  pdhoang91/study_docker:v2
+docker run --privileged -d -p 8080:80 pdhoang91/study_docker:v2 /sbin/init
+
+
+
+
+Bài 26: Docker 2/DevOps triển khai tạo Image, Container&Docker Hub cho khách hàng và đội lập trình
+
+
+- Check các container đang chạy: sudo docker ps -a
+- Xem trạng thái container: docker container ls -a
+- Xóa container: sudo docker rm [Container ID]
+- Stop container: docker container stop [Container ID]
+- Restart container: docker container restart [Container ID]
+- Pause container: docker container pause  [Container ID]
+- Truy cập vào các container đang chạy: docker container attach [Container ID]
+- Lệnh stop toàn bộ container: docker stop $(docker ps -a -q)
+- Lệnh xóa toàn bộ container: docker rm $(docker ps -a -q)
+- Lệnh xóa toàn bộ image: docker rmi -f $(docker images -a -q)
+
+Bài 27:DevOps Docker 3 / Dockerfile đây chính là lý do tăng lương, tăng vị trí cho các bạn developer
+
+ 
+ 
+1. Tạo Dockerfile
+
+# Get base image
+FROM centos:7
+
+# Author
+MAINTAINER "PHAM DINH HOANG"
+
+#Cai dat apache
+RUN yum update -y
+RUN yum install -y sudo
+RUN yum install -y epel-release
+RUN yum install -y http://rpms.famillecollet.com/enterprise/remi-release-7.rpm
+RUN yum clean all
+RUN yum -y install wget
+RUN yum -y install httpd
+RUN yum -y install --enablerepo=remi,remi-php71 php php-devel php-mbstring php-pdo php-gd php-xml php-mcrypt php-pgsql
+#Thiet lap thu muc lam viec 
+WORKDIR /var/www/html
+#copy code tu thu muc code vao image
+ADD ./code /var/www/html
+# start httpd
+CMD ["/usr/sbin/httpd", "-D", "FOREGROUND"]
+EXPOSE 80
+2. Build image
+docker build -t httpd_sample .
+3. Tạo và chạy container
+docker run -d -p 80:80 httpd_sample
+
+- Check các container đang chạy: sudo docker ps -a
+- Xem trạng thái container: docker container ls -a
+- Xóa container: sudo docker rm [Container ID]
+- Stop container: docker container stop [Container ID]
+- Restart container: docker container restart [Container ID]
+- Pause container: docker container pause  [Container ID]
+- Truy cập vào các container đang chạy: docker container attach [Container ID]
+- Lệnh stop toàn bộ container: docker stop $(docker ps -a -q)
+- Lệnh xóa toàn bộ container: docker rm $(docker ps -a -q)
+- Lệnh xóa toàn bộ image: docker rmi -f $(docker images -a -q)
+
+
+
+Bài 28: DevOps Docker 4 / Docker-compose docker nâng cao
+
+ 
+ 
+Document: https://docs.docker.com/compose/compose-file/compose-file-v2/
+Step 3: Configure Instance Details
+Cai EC2
+#!/bin/bash
+sudo yum update -y
+sudo yum install -y docker
+sudo service docker start
+sudo usermod -a -G docker ec2-user
+sudo curl -L https://github.com/docker/compose/releases/download/1.24.1/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+sudo yum install git –y
+
+
+
+
+
+Dockerfile là gì
+Là file config dùng để build các image mới dựa trên một image có sẵn
+
+Các lệnh trong Dockerfile
+FROM: Lấy 1 image trên docker hub
+LABEL: Thông tin người bảo trì dockerfile
+ENV: thiết lập một biến môi trường
+RUN: Chỉ chạy khi build image, được sử dụng để cài đặt các package vào container
+COPY: Sao chép các file và thư mục vào container
+ADD: Sao chép các file và thư mục vào container
+CMD: trong 1 Dockerfile chỉ có 1 CMD, chỉ chạy khi thực hiện lện docker run để tạo ra 1 container
+WORKDIR: Thiết lập thư mục làm việc cho các chỉ thị khác như: RUN, CMD, ENTRYPOINT, COPY, ADD,…
+ARG: Định nghĩa giá trị biến được dùng trong lúc build image
+ENTRYPOINT: cung cấp lệnh và đối số cho một container thực thi
+EXPOSE: khai báo port lắng nghe của image
+VOLUME: tạo một điểm gắn thư mục để truy cập và lưu trữ data
+
+mkdir pj01
+cd pj01/
+mkdir code
+echo ‘xin chao’ >code/index.html
+echo ‘<?php phpinfo();?>’ >code/phpinfor.php
+echo "xin chao" >code/index.html
+echo "<?php phpinfo();?>" >code/phpinfor.php
+vi Dockerfile
+FROM centos:7
+RUN yum –y update && \
+	yum -y install httpd php
+WORKDIR /var/www/html
+ADD ./code /var/www/html
+EXPOSE 80
+
+
+vi docker-compose.yml
+version: '3'
+services:
+  web:
+    build: .
+	command: ["/usr/bin/httpd", "-D", "FOREGROUND"]
+	volumes:
+		- ./code:var/www/html
+		ports:
+		- "80:80:
+
+-Build image
+docker-compose build
+-chay
+docker-compose up
+-stop
+Docker-compose stop
+-start
+docker-compose start
+Big Example:
+https://github.com/dockersamples/example-voting-app
+yum install git –y
+
+Bài 29: DevOps Docker 5 / Docker Volume, Networks docker nâng cao
+
+
+Example1: Docker And Java App
+
+Step 1: Creat spring-boot application
+Step2: Dockerfile
+FROM openjdk:8
+ADD target/docker-spring-boot.jar docker-spring-boot.jar
+EXPOSE 8085
+ENTRYPOINT ["java","-jar","docker-spring-boot.jar"]
+
+Step3: Change filenal name
+<build>
+   <plugins>
+      <plugin>
+         <groupId>org.springframework.boot</groupId>
+         <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+   </plugins>
+   <finalName>docker-spring-boot</finalName>
+</build>
+
+Step4:
+docker build –f Dockerfile –t docker-spring-boot .
+docker run –p 8080:8080 docker-spring-boot
+Example2: Docker And Java App
+

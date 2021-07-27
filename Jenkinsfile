@@ -4,6 +4,7 @@ pipeline {
 		stage('Clone') {
 			steps {
 				git branch: 'master', url: 'https://github.com/pdhoang91/jenkin.git'
+				sh "./mvnw -Dmaven.test.failure.ignore=true clean package"
 			}
 		}
 		// stage('Build Java App') {
